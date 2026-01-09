@@ -39,9 +39,3 @@ Thumbs.db
 # -------------------------------
 fake_and_real_news.csv
 
-# -------------------------------
-# Model files 
-
-# -------------------------------
-train_model.keras
-tokenizer.pkl
