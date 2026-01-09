@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fake News Detection</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='bg.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: -1;
+        }
+
+        .news-card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .btn-custom {
+            background-color: #1c3c52;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-custom:hover {
+            background-color: #0d2a3a;
+        }
+
+        /* 🔹 SMALL RESULT BOX */
+        .result-box {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .real {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .fake {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        footer {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #ddd;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="news-card">
+
+        <h4 class="text-center fw-bold mb-2">📰 Fake News Detection</h4>
+        <p class="text-center text-muted mb-3">RNN Deep Learning Model</p>
+
+        <label class="form-label">Enter News Text</label>
+        <textarea id="newsText" class="form-control" rows="4"
+                  placeholder="Paste news article here..."></textarea>
+
+        <div class="d-grid mt-3">
+            <button class="btn btn-custom" onclick="checkNews()">Analyze</button>
+        </div>
+
+        <div id="result" class="result-box d-none"></div>
+
+        <footer>
+            © 2026 RNN Fake News Project
+        </footer>
+
+    </div>
+</div>
+
+<script>
+    function checkNews() {
+        const text = document.getElementById("newsText").value;
+        const resultDiv = document.getElementById("result");
+
+        if (text.trim() === "") {
+            alert("Please enter news text");
+            return;
+        }
+
+        fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            resultDiv.classList.remove("d-none", "real", "fake");
+
+            if (data.prediction === "Real") {
+                resultDiv.classList.add("real");
+                resultDiv.innerHTML = `✅ REAL (${(data.confidence * 100).toFixed(1)}%)`;
+            } else {
+                resultDiv.classList.add("fake");
+                resultDiv.innerHTML = `❌ FAKE (${(data.confidence * 100).toFixed(1)}%)`;
+            }
+        })
+        .catch(() => {
+            resultDiv.classList.remove("d-none");
+            resultDiv.innerHTML = "Error";
+        });
+    }
+</script>
+
+</body>
+</html>
+
